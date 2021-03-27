@@ -7,8 +7,6 @@ class OperationRegion:
 
     self.parse_def_str(line_index)
     self.find_field_defs()
-    self.generate_patch()
-    self.visualize()
 
   def parse_def_str(self, line_index):
     # Parse data from syntax, limited by () delimited by ,
@@ -24,19 +22,9 @@ class OperationRegion:
     # Search for field-block definitions, corresponding to the region's field name
     blockDefs = dict(filter(lambda x: f'Field ({self.field_name}' in x[1], self.lines.items()))
 
-    # Map line numbers to new fieldblock instances
+    # Map line numbers to new fieldblock instances, filter out empty blocks
     self.blocks = list(map(lambda x: FieldBlock(x, self.offset, self.lines), blockDefs))
-
-  # Just used for debugging
-  def visualize(self):
-    print(f'OperationRegion {self.field_name} (0x{self.offset:x}, 0x{self.length:x}):')
-    for b in self.blocks:
-      print(f'fb ({b.acc}, {b.lock}, {b.preserve})' + ' {')
-      for f in b.fields:
-        if f.size <= 8: continue
-        print(f'  Off(0x{f.offset:x})\t{f.name}\t{f.size}')
-      print('}')
-    print()
+    self.blocks = list(filter(lambda x: len(x.fields) > 0, self.blocks))
 
   # Convert known literals to their digit representation
   def convert_literal(self, inp):
