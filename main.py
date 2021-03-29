@@ -149,7 +149,7 @@ def find_index_fields(lines, ec_field_names):
   return list(filter(lambda x: x.index_name in ec_field_names and x.field_name in ec_field_names, index_fields))
 
 # Read file
-with open('DSDT.dsl', 'r') as f:
+with open('test.dsl', 'r') as f:
 
   # Create dict of line_number -> line_content
   lines = dict((num, line) for num, line in enumerate(f.readlines()))
