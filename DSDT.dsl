@@ -5697,7 +5697,7 @@ DefinitionBlock ("", "DSDT", 2, "HPQOEM", "167C    ", 0x00000001)
                         PMCD,   32, 
                         S0FL,   8, 
                         SXF0,   8, 
-                        SXF1,   8, 
+                        SXF1,   8,
                         CPWR,   16, 
                         CVLT,   16, 
                         CCUR,   16, 

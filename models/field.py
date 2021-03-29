@@ -1,7 +1,10 @@
+import re
+
 class Field:
 
   def __init__(self, offset, line_index, lines):
     self.lines = lines
+    self.line_index = line_index
     self.offset = offset
     self.former_name = None
 
@@ -9,16 +12,33 @@ class Field:
     if line_index < 0:
       return
 
-    self.parse_def_str(line_index)
+    self.parse_def_str()
 
-  def parse_def_str(self, line_index):
+  def parse_def_str(self):
     # Parse data from syntax, delimited by ,
-    data = self.lines[line_index].split(',', 2)
+    data = self.lines[self.line_index].split(',', 2)
 
     # Store properties
     self.name = data[0].strip()
     self.size = int(data[1].strip())
 
+  def usage_filter(self, line, curr_index):
+    # Field name is either former name if exists, or actual name (for non-splitted fields)
+    field_name = self.former_name if self.former_name else self.name
+
+    # Not even inside this line, or same line as definition
+    if field_name not in line or curr_index == self.line_index:
+      return False
+
+    # Pattern to (hopefully) only find actual usages and comments
+    # Needs to have either non-alphanumeric or line-start at head and
+    # non-aplhanumeric or line-end at tail, then it can only be a comment or an invocation
+    # Everything around that is irrelevant to the search, thus .*
+    p = re.compile(r'.*(([^A-Za-z0-9\r\n]{1}|^)' + field_name + r'([^A-Za-z0-9\r\n]{1}|$)).*')
+
+    # Filter out comments too, which means indexof // is smaller than indexof name
+    return p.match(line) and ('//' not in line or line.index('//') > line.index(field_name))
+
   def is_in_use(self):
-    usages = list(filter(lambda x: self.former_name if self.former_name else self.name in x[1], self.lines.items()))
-    return len(usages) > 1
+    # It is in use, if there are any usages of this field
+    return len(list(filter(lambda x: self.usage_filter(x[1], x[0]), self.lines.items()))) > 0
