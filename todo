@@ -1,0 +1,3 @@
+contains only search is not enough to determine if field is in use
+need something like: [^A-Z0-9]{1}<name>[^A-Z0-9]{1}
+since a name can only have "control symbols" in that close proximity

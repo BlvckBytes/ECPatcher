@@ -116,9 +116,19 @@ def generate_region_patch(blocks, target_name):
       if curr_offset == None or curr_offset + 1 != f.offset:
         patch = patch + f'    Offset (0x{f.offset:x}),\n'
 
-      # Append field with it's offset and former name (if exists)
-      if f.former_name is not None:
-        patch = patch + f'    // Former name: {f.former_name}\n'
+        # Append field with it's offset and former name (if exists)
+        if f.former_name is not None:
+          patch = patch + f'    // Former: {f.former_name}\n'
+
+      # Else append the offset as a comment, helpful for patching
+      else:
+        patch = patch + f'    // Offset: (0x{f.offset:x})'
+        
+        # Append field with it's offset and former name (if exists)
+        if f.former_name is not None:
+          patch = patch + f', former: {f.former_name}\n'
+        else:
+          patch = patch + '\n'
 
       patch = patch + f'    {f.name}, {f.size},\n'
       curr_offset = f.offset
