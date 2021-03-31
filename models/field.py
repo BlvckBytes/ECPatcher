@@ -47,9 +47,4 @@ class Field:
   def is_in_use(self):
     # It is in use, if there are any usages of this field
     uses = list(filter(lambda x: self.usage_filter(x[1], x[0]), self.lines.items()))
-    field_name = self.former_name if self.former_name else self.name
-
-    if field_name == 'BCL':
-      print(uses)
-    
     return len(uses) > 0
