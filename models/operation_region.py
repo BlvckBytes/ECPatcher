@@ -31,3 +31,4 @@ class OperationRegion:
     if inp == 'Zero': return '0'
     if inp == 'One': return '1'
     return inp
+

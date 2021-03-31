@@ -149,7 +149,8 @@ def find_index_fields(lines, ec_field_names):
   return list(filter(lambda x: x.index_name in ec_field_names and x.field_name in ec_field_names, index_fields))
 
 # Read file
-with open('test.dsl', 'r') as f:
+inp_loc = 'test.dsl' if len(sys.argv) == 1 else sys.argv[1]
+with open(inp_loc, 'r') as f:
 
   # Create dict of line_number -> line_content
   lines = dict((num, line) for num, line in enumerate(f.readlines()))
@@ -157,9 +158,19 @@ with open('test.dsl', 'r') as f:
   # Search for region-definitions on the EC-memory
   reg_defs = dict(filter(lambda x: "OperationRegion" in x[1] and "EmbeddedControl" in x[1], lines.items()))
 
-  # Map line numbers to new operationregion instances, filter out empty regions
-  regions = list(map(lambda x: OperationRegion(x, lines), reg_defs))
-  regions = list(filter(lambda x: len(x.blocks) > 0, regions))
+
+  # Map line numbers to new operationregion instances
+  regions = []
+  for reg_def in reg_defs:
+    try:
+      reg = OperationRegion(reg_def, lines)
+
+      # filter out empty regions
+      if len(reg.blocks) > 0:
+        regions.append(reg)
+    except ValueError:
+      print('[WARNING] Unparsable EC-OR encountered! (check if it needs patching manually)')
+      print('[WARNING] ' + lines[reg_def].strip())
 
   # Get all exising field names from EC-regions
   ec_field_names = []

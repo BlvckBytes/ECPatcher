@@ -34,11 +34,22 @@ class Field:
     # Needs to have either non-alphanumeric or line-start at head and
     # non-aplhanumeric or line-end at tail, then it can only be a comment or an invocation
     # Everything around that is irrelevant to the search, thus .*
-    p = re.compile(r'.*(([^A-Za-z0-9\r\n]{1}|^)' + field_name + r'([^A-Za-z0-9\r\n]{1}|$)).*')
+    p = re.compile(r'.*(([^A-Za-z0-9_\r\n]{1}|^)' + field_name + r'([^A-Za-z0-9_\r\n]{1}|$)).*')
 
-    # Filter out comments too, which means indexof // is smaller than indexof name
-    return p.match(line) and ('//' not in line or line.index('//') > line.index(field_name))
+    def_stmts = ['Method (', 'Field (', 'OperationRegion (', 'Name (', 'Mutex (']
+    no_def = not any([f'{def_stmt}{field_name}' in line for def_stmt in def_stmts])
+
+    # Filter out comments too, which means indexof // or /* is smaller than indexof name
+    no_linecomm = ('//' not in line or line.index('//') > line.index(field_name))
+    no_blockcomm = ('/*' not in line or line.index('/*') > line.index(field_name))
+    return p.match(line) and no_linecomm and no_blockcomm and no_def
 
   def is_in_use(self):
     # It is in use, if there are any usages of this field
-    return len(list(filter(lambda x: self.usage_filter(x[1], x[0]), self.lines.items()))) > 0
+    uses = list(filter(lambda x: self.usage_filter(x[1], x[0]), self.lines.items()))
+    field_name = self.former_name if self.former_name else self.name
+
+    if field_name == 'BCL':
+      print(uses)
+    
+    return len(uses) > 0

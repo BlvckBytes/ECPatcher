@@ -1,0 +1,4 @@
+regarding field uses:
+* fields need to know their scope...
+* if there is a explicit scope, check if equals
+* uses need to get their scope parsed too in order to check if equals on implicit scopes
