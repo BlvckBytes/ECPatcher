@@ -1,13 +1,18 @@
 from models.field import Field
+from models.scoped_entity import ScopedEntity
 import math
 
 class FieldBlock:
 
-  def __init__(self, line_index, initial_offset, lines):
+  def __init__(self, line_index, initial_offset, scope, lines):
     self.fields = []
     self.lines = lines
     self.index_name = None
+    self.scope = scope
     self.initial_offset = initial_offset
+
+    if self.scope == None:
+      self.scope = ScopedEntity(lines).find_scope(line_index)
 
     # Used for manual property assignment
     if line_index < 0:
@@ -69,11 +74,11 @@ class FieldBlock:
         curr_offset = curr_offset + off_bytes
 
   def has_same_signature(self, other):
-    return self.access_type == other.access_type and self.lock_rule == other.lock_rule and self.update_rule == other.update_rule
+    return self.access_type == other.access_type and self.lock_rule == other.lock_rule and self.update_rule == other.update_rule and self.scope == other.scope
 
   def clone_empty(self, name):
     # Generate new empty block
-    block = FieldBlock(-1, 0, [])
+    block = FieldBlock(-1, 0, self.scope, [])
 
     # Copy properties
     block.field_name = name

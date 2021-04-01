@@ -36,13 +36,11 @@ class Field:
     # Everything around that is irrelevant to the search, thus .*
     p = re.compile(r'.*(([^A-Za-z0-9_\r\n]{1}|^)' + field_name + r'([^A-Za-z0-9_\r\n]{1}|$)).*')
 
+    # Ignore definitions
     def_stmts = ['Method (', 'Field (', 'OperationRegion (', 'Name (', 'Mutex (']
     no_def = not any([f'{def_stmt}{field_name}' in line for def_stmt in def_stmts])
 
-    # Filter out comments too, which means indexof // or /* is smaller than indexof name
-    no_linecomm = ('//' not in line or line.index('//') > line.index(field_name))
-    no_blockcomm = ('/*' not in line or line.index('/*') > line.index(field_name))
-    return p.match(line) and no_linecomm and no_blockcomm and no_def
+    return p.match(line) and no_def
 
   def is_in_use(self):
     # It is in use, if there are any usages of this field
